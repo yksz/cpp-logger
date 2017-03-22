@@ -1,10 +1,10 @@
 #include "logger.h"
-#include "logger_thread.h"
+#include "log_thread.h"
 
 namespace log {
 
 Logger::Logger() {
-    m_thread = new LoggerThread();
+    m_thread = new LogThread();
 }
 
 Logger::~Logger() {

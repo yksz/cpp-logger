@@ -1,6 +1,5 @@
 #pragma once
 
-#include "logger_queue.h"
 #include <cstddef>
 #include <condition_variable>
 #include <mutex>
@@ -9,12 +8,12 @@
 namespace log {
 
 template<typename T>
-class LoggerQueue final {
+class LogQueue final {
 public:
-    explicit LoggerQueue(size_t capacity) : m_capacity(capacity) {}
-    ~LoggerQueue() = default;
-    LoggerQueue(const LoggerQueue&) = delete;
-    LoggerQueue& operator=(const LoggerQueue&) = delete;
+    explicit LogQueue(size_t capacity) : m_capacity(capacity) {}
+    ~LogQueue() = default;
+    LogQueue(const LogQueue&) = delete;
+    LogQueue& operator=(const LogQueue&) = delete;
 
     void Push(T&& element) {
         std::unique_lock<std::mutex> lock(m_mutex);

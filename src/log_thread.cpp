@@ -1,18 +1,18 @@
-#include "logger_thread.h"
+#include "log_thread.h"
 #include <cstdint>
 
 namespace log {
 
-LoggerThread::LoggerThread()
-        : m_queue(SIZE_MAX), m_thread(&LoggerThread::run, this) {
+LogThread::LogThread()
+        : m_queue(SIZE_MAX), m_thread(&LogThread::run, this) {
 }
 
-LoggerThread::~LoggerThread() {
+LogThread::~LogThread() {
     m_queue.Push(std::string(m_poison));
     m_thread.join();
 }
 
-void LoggerThread::run() {
+void LogThread::run() {
     while (true) {
         std::string msg;
         m_queue.Pop(&msg);
@@ -23,7 +23,7 @@ void LoggerThread::run() {
     }
 }
 
-void LoggerThread::Send(std::string&& msg) {
+void LogThread::Send(std::string&& msg) {
     if (msg != m_poison) {
         m_queue.Push(std::move(msg));
     }

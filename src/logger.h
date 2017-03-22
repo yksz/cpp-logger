@@ -5,7 +5,7 @@
 
 namespace log {
 
-class LoggerThread;
+class LogThread;
 
 class Logger final {
 public:
@@ -18,7 +18,7 @@ public:
     void Println(std::string&& msg);
 
 private:
-    LoggerThread* m_thread;
+    LogThread* m_thread;
 };
 
 } // namespace log
