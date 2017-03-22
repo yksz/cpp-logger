@@ -5,7 +5,6 @@ namespace log {
 
 Logger::Logger() {
     m_thread = new LoggerThread();
-    m_thread->Start();
 }
 
 Logger::~Logger() {
