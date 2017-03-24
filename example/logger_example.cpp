@@ -3,9 +3,10 @@
 #include "logger.h"
 
 int main(void) {
-    log::Logger logger;
-    logger.Println("a");
-    logger.Println("b");
-    logger.Println("c");
+    log::Logger::Init();
+    auto& logger = log::Logger::Instance();
+    logger.Log("a");
+    logger.Log("b");
+    logger.Log("c");
     return 0;
 }
