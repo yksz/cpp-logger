@@ -3,12 +3,9 @@
 #include "logger.h"
 
 int main(void) {
-    using namespace log;
-
-    Logger::Init();
-    auto& logger = Logger::Instance();
-    logger.Log(LogLevel::WARN,  "a");
-    logger.Log(LogLevel::INFO,  "b");
-    logger.Log(LogLevel::DEBUG, "c");
+    log::Logger::Init();
+    LOG_WARN("%s", "1");
+    LOG_INFO("%c", '2');
+    LOG_DEBUG("%d", 3);
     return 0;
 }
