@@ -1,14 +1,22 @@
 #pragma once
 
+#include <cstdio>
+#include <cstring>
 #include <memory>
 #include <string>
 
-#define LOG_TRACE(fmt, ...) log::Logger::Instance().Log(log::LogLevel::TRACE, fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) log::Logger::Instance().Log(log::LogLevel::DEBUG, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...)  log::Logger::Instance().Log(log::LogLevel::INFO , fmt, ##__VA_ARGS__)
-#define LOG_WARN(fmt, ...)  log::Logger::Instance().Log(log::LogLevel::WARN , fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) log::Logger::Instance().Log(log::LogLevel::ERROR, fmt, ##__VA_ARGS__)
-#define LOG_FATAL(fmt, ...) log::Logger::Instance().Log(log::LogLevel::FATAL, fmt, ##__VA_ARGS__)
+#if defined(_WIN32) || defined(_WIN64)
+ #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+ #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif // defined(_WIN32) || defined(_WIN64)
+
+#define LOG_TRACE(fmt, ...) log::Logger::Instance().Log(log::LogLevel::TRACE, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) log::Logger::Instance().Log(log::LogLevel::DEBUG, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...)  log::Logger::Instance().Log(log::LogLevel::INFO , __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...)  log::Logger::Instance().Log(log::LogLevel::WARN , __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) log::Logger::Instance().Log(log::LogLevel::ERROR, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_FATAL(fmt, ...) log::Logger::Instance().Log(log::LogLevel::FATAL, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
 
 namespace log {
 
@@ -35,7 +43,7 @@ public:
     void SetLevel(LogLevel level);
     bool IsEnabled(LogLevel level);
     std::shared_ptr<LogThread> Thread();
-    void Log(LogLevel level, const char* fmt, ...);
+    void Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...);
 
 private:
     LogLevel m_level;

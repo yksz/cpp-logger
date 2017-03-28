@@ -56,6 +56,10 @@ static std::string format(const LogMessage& msg) {
        << " "
        << msg.threadID
        << " "
+       << msg.file
+       << ":"
+       << msg.line
+       << ": "
        << msg.content
        << std::endl;
     return ss.str();

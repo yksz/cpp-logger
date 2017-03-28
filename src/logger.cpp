@@ -63,7 +63,7 @@ static int vasprintf(char** strp, const char* fmt, va_list ap) {
 
 static uint64_t getCurrentThreadID();
 
-void Logger::Log(LogLevel level, const char* fmt, ...) {
+void Logger::Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...) {
     if (!IsEnabled(level)) {
         return;
     }
@@ -71,12 +71,13 @@ void Logger::Log(LogLevel level, const char* fmt, ...) {
     char* buf = nullptr;
     va_list arg;
     va_start(arg, fmt);
-    bool ok = vasprintf(&buf, fmt, arg) != -1;
-    if (ok) {
+    if (vasprintf(&buf, fmt, arg) != -1) {
         LogMessage msg = {};
         msg.level = level;
         msg.timestamp = LogClock::now();
         msg.threadID = getCurrentThreadID();
+        msg.file = file;
+        msg.line = line;
         msg.content = buf;
         m_thread->Send(std::move(msg));
     } else {
