@@ -1,6 +1,7 @@
 #include "log_thread.h"
 #include <cstdint>
 #include <ctime>
+#include <iomanip>
 #include <sstream>
 #include "logger.h"
 
@@ -53,6 +54,8 @@ static std::string format(const LogMessage& msg) {
        << " "
        << toString(msg.timestamp)
        << " "
+       << msg.threadID
+       << " "
        << msg.content
        << std::endl;
     return ss.str();
@@ -99,7 +102,7 @@ static std::string toString(const LogClock::time_point& timestamp) {
     std::stringstream ss;
     ss << timestr
        << "."
-       << usec;
+       << std::setfill('0') << std::setw(6) << usec; // %06ld
     return ss.str();
 }
 

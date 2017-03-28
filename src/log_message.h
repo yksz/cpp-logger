@@ -12,6 +12,7 @@ using LogClock = std::chrono::system_clock;
 struct LogMessage {
     LogLevel level;
     LogClock::time_point timestamp;
+    uint64_t threadID;
     std::string content;
     bool exited;
 };

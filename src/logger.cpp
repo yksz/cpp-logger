@@ -2,6 +2,13 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#if defined(_WIN32) || defined(_WIN64)
+ #include <windows.h>
+#else
+ #include <pthread.h>
+ #include <sys/syscall.h>
+ #include <unistd.h>
+#endif // defined(_WIN32) || defined(_WIN64)
 #include "log_thread.h"
 
 namespace log {
@@ -54,6 +61,8 @@ static int vasprintf(char** strp, const char* fmt, va_list ap) {
 }
 #endif // defined(_WIN32) || defined(_WIN64)
 
+static uint64_t getCurrentThreadID();
+
 void Logger::Log(LogLevel level, const char* fmt, ...) {
     if (!IsEnabled(level)) {
         return;
@@ -67,6 +76,7 @@ void Logger::Log(LogLevel level, const char* fmt, ...) {
         LogMessage msg = {};
         msg.level = level;
         msg.timestamp = LogClock::now();
+        msg.threadID = getCurrentThreadID();
         msg.content = buf;
         m_thread->Send(std::move(msg));
     } else {
@@ -76,6 +86,18 @@ void Logger::Log(LogLevel level, const char* fmt, ...) {
     if (buf != nullptr) {
         free(buf);
     }
+}
+
+static uint64_t getCurrentThreadID() {
+#if defined(_WIN32) || defined(_WIN64)
+    return (uint64_t) GetCurrentThreadId();
+#elif __linux__
+    return (uint64_t) syscall(SYS_gettid);
+#elif defined(__APPLE__) && defined(__MACH__)
+    return (uint64_t) syscall(SYS_thread_selfid);
+#else
+    return (uint64_t) pthread_self();
+#endif // defined(_WIN32) || defined(_WIN64)
 }
 
 } // namespace log
