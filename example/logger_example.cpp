@@ -1,5 +1,3 @@
-#include <chrono>
-#include <thread>
 #include "logger.h"
 
 int main(void) {

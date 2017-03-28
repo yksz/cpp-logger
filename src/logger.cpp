@@ -1,6 +1,7 @@
 #include "logger.h"
 #include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 #include "log_thread.h"
 
 namespace log {
@@ -63,7 +64,11 @@ void Logger::Log(LogLevel level, const char* fmt, ...) {
     va_start(arg, fmt);
     bool ok = vasprintf(&buf, fmt, arg) != -1;
     if (ok) {
-        m_thread->Send(buf);
+        LogMessage msg = {};
+        msg.level = level;
+        msg.timestamp = LogClock::now();
+        msg.content = buf;
+        m_thread->Send(std::move(msg));
     } else {
         fprintf(stderr, "ERROR: logger: vasprintf");
     }

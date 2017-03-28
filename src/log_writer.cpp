@@ -3,12 +3,12 @@
 
 namespace log {
 
-void StdoutLogWriter::Println(const std::string& msg) {
-    printf("%s\n", msg.c_str());
+void StdoutLogWriter::Print(const std::string& msg) {
+    printf("%s", msg.c_str());
 }
 
-void StderrLogWriter::Println(const std::string& msg) {
-    fprintf(stderr, "%s\n", msg.c_str());
+void StderrLogWriter::Print(const std::string& msg) {
+    fprintf(stderr, "%s", msg.c_str());
 }
 
 } // namespace log
