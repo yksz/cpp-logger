@@ -17,4 +17,16 @@ struct StderrLogWriter final : public LogWriter {
     void Print(const std::string& msg);
 };
 
+class FileLogWriter final : public LogWriter {
+public:
+    FileLogWriter(const char* filename);
+    ~FileLogWriter();
+    bool Init();
+    void Print(const std::string& msg);
+
+private:
+    std::string m_filename;
+    FILE* m_output;
+};
+
 } // namespace log

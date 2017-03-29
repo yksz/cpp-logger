@@ -38,7 +38,8 @@ public:
         return s_instance;
     }
 
-    static void Init();
+    static void InitConsoleLogger(FILE* output = stdout);
+    static void InitFileLogger(const char* filename);
     LogLevel Level();
     void SetLevel(LogLevel level);
     bool IsEnabled(LogLevel level);

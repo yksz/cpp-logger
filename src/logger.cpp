@@ -13,10 +13,20 @@
 
 namespace log {
 
-void Logger::Init() {
+void Logger::InitConsoleLogger(FILE* output) {
     auto thread = Logger::Instance().Thread();
-    thread->AddWriter(std::unique_ptr<StdoutLogWriter>(new StdoutLogWriter()));
-    thread->AddWriter(std::unique_ptr<StderrLogWriter>(new StderrLogWriter()));
+    if (output == stderr) {
+        thread->AddWriter(std::unique_ptr<StderrLogWriter>(new StderrLogWriter()));
+    } else {
+        thread->AddWriter(std::unique_ptr<StdoutLogWriter>(new StdoutLogWriter()));
+    }
+}
+
+void Logger::InitFileLogger(const char* filename) {
+    auto thread = Logger::Instance().Thread();
+    auto fileLogWriter = std::unique_ptr<FileLogWriter>(new FileLogWriter(filename));
+    fileLogWriter->Init();
+    thread->AddWriter(std::move(fileLogWriter));
 }
 
 Logger::Logger() : m_level(LogLevel::INFO) {
