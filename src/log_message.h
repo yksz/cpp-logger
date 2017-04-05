@@ -2,16 +2,19 @@
 
 #include <chrono>
 #include <string>
+#if defined(_WIN32) || defined(_WIN64)
+ #include <winsock2.h>
+#else
+ #include <sys/time.h>
+#endif // defined(_WIN32) || defined(_WIN64)
 
 namespace log {
 
 enum struct LogLevel;
 
-using LogClock = std::chrono::system_clock;
-
 struct LogMessage {
     LogLevel level;
-    LogClock::time_point timestamp;
+    struct timeval timestamp;
     uint64_t threadID;
     const char* file;
     uint32_t line;

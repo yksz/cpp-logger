@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #if defined(_WIN32) || defined(_WIN64)
- #include <windows.h>
+ #include <winsock2.h>
 #else
  #include <pthread.h>
  #include <sys/syscall.h>
@@ -69,6 +69,25 @@ static int vasprintf(char** strp, const char* fmt, va_list ap) {
     }
     return result;
 }
+
+static int gettimeofday(struct timeval* tv, void* tz)
+{
+    const UINT64 epochFileTime = 116444736000000000ULL;
+    FILETIME ft;
+    ULARGE_INTEGER li;
+    UINT64 t;
+
+    if (tv == NULL) {
+        return -1;
+    }
+    GetSystemTimeAsFileTime(&ft);
+    li.LowPart = ft.dwLowDateTime;
+    li.HighPart = ft.dwHighDateTime;
+    t = (li.QuadPart - epochFileTime) / 10;
+    tv->tv_sec = (long) (t / 1000000);
+    tv->tv_usec = t % 1000000;
+    return 0;
+}
 #endif // defined(_WIN32) || defined(_WIN64)
 
 static uint64_t getCurrentThreadID();
@@ -84,7 +103,7 @@ void Logger::Log(LogLevel level, const char* file, uint32_t line, const char* fm
     if (vasprintf(&buf, fmt, arg) != -1) {
         LogMessage msg = {};
         msg.level = level;
-        msg.timestamp = LogClock::now();
+        gettimeofday(&msg.timestamp, nullptr);
         msg.threadID = getCurrentThreadID();
         msg.file = file;
         msg.line = line;

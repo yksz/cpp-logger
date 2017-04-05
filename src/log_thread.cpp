@@ -45,13 +45,16 @@ void LogThread::run() {
 }
 
 static char toCharacter(const LogLevel& level);
-static std::string toString(const LogClock::time_point& timestamp);
+static void toString(const struct timeval& timestamp, char* timestr, size_t len);
 
 static std::string format(const LogMessage& msg) {
+    char timestr[32];
+    toString(msg.timestamp, timestr, sizeof(timestr));
+
     std::stringstream ss;
     ss << toCharacter(msg.level)
        << " "
-       << toString(msg.timestamp)
+       << timestr
        << " "
        << msg.threadID
        << " "
@@ -77,36 +80,17 @@ static char toCharacter(const LogLevel& level) {
 }
 
 #if defined(_WIN32) || defined(_WIN64)
-static struct tm* localtime_r(const time_t* timep, struct tm* result)
-{
+static struct tm* localtime_r(const time_t* timep, struct tm* result) {
     localtime_s(result, timep);
     return result;
 }
 #endif // defined(_WIN32) || defined(_WIN64)
 
-template<class Duration>
-static Duration toDuration(const LogClock::time_point& tp) {
-    auto count = std::chrono::time_point_cast<Duration>(tp).time_since_epoch().count();
-    return Duration(count);
-}
-
-static std::string toString(const LogClock::time_point& timestamp) {
-    using namespace std::chrono;
-
-    time_t time = LogClock::to_time_t(timestamp);
+static void toString(const struct timeval& timestamp, char* timestr, size_t len) {
     struct tm calendar;
-    localtime_r(&time, &calendar);
-    char timestr[32];
-    strftime(timestr, sizeof(timestr), "%y-%m-%d %H:%M:%S", &calendar);
-
-    microseconds duration = toDuration<microseconds>(timestamp);
-    long usec = duration.count() % 1000000;
-
-    std::stringstream ss;
-    ss << timestr
-       << "."
-       << std::setfill('0') << std::setw(6) << usec; // %06ld
-    return ss.str();
+    localtime_r(&timestamp.tv_sec, &calendar);
+    strftime(timestr, len, "%y-%m-%d %H:%M:%S", &calendar);
+    sprintf(&timestr[17], ".%06ld", (long) timestamp.tv_usec);
 }
 
 } // namespace log
