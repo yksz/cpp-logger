@@ -13,9 +13,9 @@ struct LogMessage {
     LogLevel level;
     LogClock::time_point timestamp;
     uint64_t threadID;
-    std::string file;
+    const char* file;
     uint32_t line;
-    std::string content;
+    char* content;
     bool exited;
 };
 

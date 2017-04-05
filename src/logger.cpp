@@ -94,9 +94,6 @@ void Logger::Log(LogLevel level, const char* file, uint32_t line, const char* fm
         fprintf(stderr, "ERROR: logger: vasprintf");
     }
     va_end(arg);
-    if (buf != nullptr) {
-        free(buf);
-    }
 }
 
 static uint64_t getCurrentThreadID() {

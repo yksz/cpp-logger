@@ -18,10 +18,9 @@ LogThread::~LogThread() {
 }
 
 void LogThread::Send(LogMessage&& msg) {
-    if (msg.exited) {
-        return;
+    if (!msg.exited) {
+        m_queue.Push(std::move(msg));
     }
-    m_queue.Push(std::move(msg));
 }
 
 void LogThread::AddWriter(std::unique_ptr<LogWriter> writer) {
@@ -38,10 +37,10 @@ void LogThread::run() {
             break;
         }
         std::string formatted = format(msg);
-
         for (auto& writer : m_writers) {
             writer->Print(formatted);
         }
+        free(msg.content);
     }
 }
 
