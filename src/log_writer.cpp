@@ -3,12 +3,14 @@
 
 namespace log {
 
-void StdoutLogWriter::Print(const std::string& msg) {
-    printf("%s", msg.c_str());
+void StdoutLogWriter::Print(char level, const char* timestamp, const LogMessage& msg) {
+    printf("%c %s %ld %s:%d: %s\n", level, timestamp,
+            msg.threadID, msg.file, msg.line, msg.content);
 }
 
-void StderrLogWriter::Print(const std::string& msg) {
-    fprintf(stderr, "%s", msg.c_str());
+void StderrLogWriter::Print(char level, const char* timestamp, const LogMessage& msg) {
+    fprintf(stderr, "%c %s %ld %s:%d: %s\n", level, timestamp,
+            msg.threadID, msg.file, msg.line, msg.content);
 }
 
 FileLogWriter::FileLogWriter(const char* filename)
@@ -29,9 +31,10 @@ bool FileLogWriter::Init() {
     return true;
 }
 
-void FileLogWriter::Print(const std::string& msg) {
+void FileLogWriter::Print(char level, const char* timestamp, const LogMessage& msg) {
     if (m_output != nullptr) {
-        fprintf(m_output, "%s", msg.c_str());
+        fprintf(m_output, "%c %s %ld %s:%d: %s\n", level, timestamp,
+                msg.threadID, msg.file, msg.line, msg.content);
     }
 }
 

@@ -26,6 +26,7 @@ private:
     std::vector<std::unique_ptr<LogWriter>> m_writers;
 
     void run();
+    void write(const LogMessage& msg);
 };
 
 } // namespace log

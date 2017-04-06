@@ -27,8 +27,6 @@ void LogThread::AddWriter(std::unique_ptr<LogWriter> writer) {
     m_writers.push_back(std::move(writer));
 }
 
-static std::string format(const LogMessage& msg);
-
 void LogThread::run() {
     while (true) {
         LogMessage msg;
@@ -36,35 +34,21 @@ void LogThread::run() {
         if (msg.exited) {
             break;
         }
-        std::string formatted = format(msg);
-        for (auto& writer : m_writers) {
-            writer->Print(formatted);
-        }
+        write(msg);
         free(msg.content);
     }
 }
 
 static char toCharacter(const LogLevel& level);
-static void toString(const struct timeval& timestamp, char* timestr, size_t len);
+static void toString(const struct timeval& time, char* str, size_t len);
 
-static std::string format(const LogMessage& msg) {
-    char timestr[32];
-    toString(msg.timestamp, timestr, sizeof(timestr));
-
-    std::stringstream ss;
-    ss << toCharacter(msg.level)
-       << " "
-       << timestr
-       << " "
-       << msg.threadID
-       << " "
-       << msg.file
-       << ":"
-       << msg.line
-       << ": "
-       << msg.content
-       << std::endl;
-    return ss.str();
+void LogThread::write(const LogMessage& msg) {
+    char level = toCharacter(msg.level);
+    char timestamp[32];
+    toString(msg.timestamp, timestamp, sizeof(timestamp));
+    for (auto& writer : m_writers) {
+        writer->Print(level, timestamp, msg);
+    }
 }
 
 static char toCharacter(const LogLevel& level) {
@@ -86,11 +70,14 @@ static struct tm* localtime_r(const time_t* timep, struct tm* result) {
 }
 #endif // defined(_WIN32) || defined(_WIN64)
 
-static void toString(const struct timeval& timestamp, char* timestr, size_t len) {
+static void toString(const struct timeval& time, char* str, size_t len) {
     struct tm calendar;
-    localtime_r(&timestamp.tv_sec, &calendar);
-    strftime(timestr, len, "%y-%m-%d %H:%M:%S", &calendar);
-    sprintf(&timestr[17], ".%06ld", (long) timestamp.tv_usec);
+    localtime_r(&time.tv_sec, &calendar);
+    strftime(str, len, "%y-%m-%d %H:%M:%S", &calendar);
+    const int offset = 17;
+    if (len > offset) {
+        snprintf(&str[offset], len - offset, ".%06ld", (long) time.tv_usec);
+    }
 }
 
 } // namespace log

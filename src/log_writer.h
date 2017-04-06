@@ -1,20 +1,21 @@
 #pragma once
 
 #include <string>
+#include "log_message.h"
 
 namespace log {
 
 struct LogWriter {
     virtual ~LogWriter() {}
-    virtual void Print(const std::string& msg) = 0;
+    virtual void Print(char level, const char* timestamp, const LogMessage& msg) = 0;
 };
 
 struct StdoutLogWriter final : public LogWriter {
-    void Print(const std::string& msg);
+    void Print(char level, const char* timestamp, const LogMessage& msg);
 };
 
 struct StderrLogWriter final : public LogWriter {
-    void Print(const std::string& msg);
+    void Print(char level, const char* timestamp, const LogMessage& msg);
 };
 
 class FileLogWriter final : public LogWriter {
@@ -22,7 +23,7 @@ public:
     FileLogWriter(const char* filename);
     ~FileLogWriter();
     bool Init();
-    void Print(const std::string& msg);
+    void Print(char level, const char* timestamp, const LogMessage& msg);
 
 private:
     std::string m_filename;
