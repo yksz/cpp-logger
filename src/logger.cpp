@@ -11,7 +11,7 @@
 #endif // defined(_WIN32) || defined(_WIN64)
 #include "log_thread.h"
 
-namespace log {
+namespace logger {
 
 void Logger::InitConsoleLogger(FILE* output) {
     auto thread = Logger::Instance().Thread();
@@ -29,7 +29,7 @@ void Logger::InitFileLogger(const char* filename) {
     thread->AddWriter(std::move(fileLogWriter));
 }
 
-Logger::Logger() : m_level(LogLevel::INFO) {
+Logger::Logger() : m_level(LogLevel_INFO) {
     m_thread = std::make_shared<LogThread>();
 }
 
@@ -70,20 +70,18 @@ static int vasprintf(char** strp, const char* fmt, va_list ap) {
     return result;
 }
 
-static int gettimeofday(struct timeval* tv, void* tz)
-{
+static int gettimeofday(struct timeval* tv, void* tz) {
     const UINT64 epochFileTime = 116444736000000000ULL;
-    FILETIME ft;
-    ULARGE_INTEGER li;
-    UINT64 t;
 
     if (tv == NULL) {
         return -1;
     }
+    FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
+    ULARGE_INTEGER li;
     li.LowPart = ft.dwLowDateTime;
     li.HighPart = ft.dwHighDateTime;
-    t = (li.QuadPart - epochFileTime) / 10;
+    UINT64 t = (li.QuadPart - epochFileTime) / 10;
     tv->tv_sec = (long) (t / 1000000);
     tv->tv_usec = t % 1000000;
     return 0;
@@ -127,4 +125,4 @@ static uint64_t getCurrentThreadID() {
 #endif // defined(_WIN32) || defined(_WIN64)
 }
 
-} // namespace log
+} // namespace logger

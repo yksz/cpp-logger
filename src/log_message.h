@@ -1,16 +1,14 @@
 #pragma once
 
-#include <chrono>
-#include <string>
 #if defined(_WIN32) || defined(_WIN64)
  #include <winsock2.h>
 #else
  #include <sys/time.h>
 #endif // defined(_WIN32) || defined(_WIN64)
 
-namespace log {
+namespace logger {
 
-enum struct LogLevel;
+enum LogLevel;
 
 struct LogMessage {
     LogLevel level;
@@ -22,4 +20,4 @@ struct LogMessage {
     bool exited;
 };
 
-} // namespace log
+} // namespace logger

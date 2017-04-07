@@ -2,8 +2,8 @@
 #include "logger.h"
 
 int main(void) {
-    log::Logger::InitConsoleLogger(stderr);
-    log::Logger::InitFileLogger("log.txt");
+    logger::Logger::InitConsoleLogger(stderr);
+    logger::Logger::InitFileLogger("log.txt");
     std::thread th([] {
         LOG_ERROR("%d", 0);
     });

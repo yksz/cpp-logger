@@ -5,7 +5,7 @@
 #include <mutex>
 #include <queue>
 
-namespace log {
+namespace logger {
 
 template<typename T>
 class LogQueue final {
@@ -58,4 +58,4 @@ private:
     }
 };
 
-} // namespace log
+} // namespace logger

@@ -3,7 +3,7 @@
 #include <string>
 #include "log_message.h"
 
-namespace log {
+namespace logger {
 
 struct LogWriter {
     virtual ~LogWriter() {}
@@ -30,4 +30,4 @@ private:
     FILE* m_output;
 };
 
-} // namespace log
+} // namespace logger

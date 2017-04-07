@@ -1,14 +1,13 @@
 #pragma once
 
 #include <memory>
-#include <string>
 #include <thread>
 #include <vector>
 #include "log_message.h"
 #include "log_queue.h"
 #include "log_writer.h"
 
-namespace log {
+namespace logger {
 
 class LogThread final {
 public:
@@ -29,4 +28,4 @@ private:
     void write(const LogMessage& msg);
 };
 
-} // namespace log
+} // namespace logger

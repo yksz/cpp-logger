@@ -1,16 +1,20 @@
 #include "log_writer.h"
 #include <cstdio>
 
-namespace log {
+namespace logger {
 
 void StdoutLogWriter::Print(char level, const char* timestamp, const LogMessage& msg) {
-    printf("%c %s %ld %s:%d: %s\n", level, timestamp,
-            msg.threadID, msg.file, msg.line, msg.content);
+    // call printf 3 times to avoid a runtime error on Windows
+    printf("%c %s %ld ", level, timestamp, msg.threadID);
+    printf("%s:%d: ", msg.file, msg.line);
+    printf("%s\n", msg.content);
 }
 
 void StderrLogWriter::Print(char level, const char* timestamp, const LogMessage& msg) {
-    fprintf(stderr, "%c %s %ld %s:%d: %s\n", level, timestamp,
-            msg.threadID, msg.file, msg.line, msg.content);
+    // call fprintf 3 times to avoid a runtime error on Windows
+    fprintf(stderr, "%c %s %ld ", level, timestamp, msg.threadID);
+    fprintf(stderr, "%s:%d: ", msg.file, msg.line);
+    fprintf(stderr, "%s\n", msg.content);
 }
 
 FileLogWriter::FileLogWriter(const char* filename)
@@ -33,9 +37,11 @@ bool FileLogWriter::Init() {
 
 void FileLogWriter::Print(char level, const char* timestamp, const LogMessage& msg) {
     if (m_output != nullptr) {
-        fprintf(m_output, "%c %s %ld %s:%d: %s\n", level, timestamp,
-                msg.threadID, msg.file, msg.line, msg.content);
+        // call fprintf 3 times to avoid a runtime error on Windows
+        fprintf(m_output, "%c %s %ld ", level, timestamp, msg.threadID);
+        fprintf(m_output, "%s:%d: ", msg.file, msg.line);
+        fprintf(m_output, "%s\n", msg.content);
     }
 }
 
-} // namespace log
+} // namespace logger

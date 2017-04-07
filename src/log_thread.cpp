@@ -5,7 +5,7 @@
 #include <sstream>
 #include "logger.h"
 
-namespace log {
+namespace logger {
 
 LogThread::LogThread()
         : m_queue(SIZE_MAX), m_thread(&LogThread::run, this) {}
@@ -39,7 +39,7 @@ void LogThread::run() {
     }
 }
 
-static char toCharacter(const LogLevel& level);
+static char toCharacter(LogLevel level);
 static void toString(const struct timeval& time, char* str, size_t len);
 
 void LogThread::write(const LogMessage& msg) {
@@ -51,14 +51,14 @@ void LogThread::write(const LogMessage& msg) {
     }
 }
 
-static char toCharacter(const LogLevel& level) {
+static char toCharacter(LogLevel level) {
     switch (level) {
-        case LogLevel::TRACE: return 'T';
-        case LogLevel::DEBUG: return 'D';
-        case LogLevel::INFO:  return 'I';
-        case LogLevel::WARN:  return 'W';
-        case LogLevel::ERROR: return 'E';
-        case LogLevel::FATAL: return 'F';
+        case LogLevel_TRACE: return 'T';
+        case LogLevel_DEBUG: return 'D';
+        case LogLevel_INFO:  return 'I';
+        case LogLevel_WARN:  return 'W';
+        case LogLevel_ERROR: return 'E';
+        case LogLevel_FATAL: return 'F';
         default: return ' ';
     }
 }
@@ -71,8 +71,9 @@ static struct tm* localtime_r(const time_t* timep, struct tm* result) {
 #endif // defined(_WIN32) || defined(_WIN64)
 
 static void toString(const struct timeval& time, char* str, size_t len) {
+    time_t sec = time.tv_sec;
     struct tm calendar;
-    localtime_r(&time.tv_sec, &calendar);
+    localtime_r(&sec, &calendar);
     strftime(str, len, "%y-%m-%d %H:%M:%S", &calendar);
     const int offset = 17;
     if (len > offset) {
@@ -80,4 +81,4 @@ static void toString(const struct timeval& time, char* str, size_t len) {
     }
 }
 
-} // namespace log
+} // namespace logger
