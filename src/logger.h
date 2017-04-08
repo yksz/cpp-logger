@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -19,7 +20,7 @@
 
 namespace logger {
 
-enum LogLevel {
+enum LogLevel : uint8_t {
     LogLevel_TRACE,
     LogLevel_DEBUG,
     LogLevel_INFO,

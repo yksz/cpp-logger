@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #if defined(_WIN32) || defined(_WIN64)
  #include <winsock2.h>
 #else
@@ -8,7 +9,7 @@
 
 namespace logger {
 
-enum LogLevel;
+enum LogLevel : uint8_t;
 
 struct LogMessage {
     LogLevel level;
