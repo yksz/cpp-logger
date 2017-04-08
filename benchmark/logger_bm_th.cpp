@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
         nThreads = atoi(argv[1]);
     }
 
-    log::Logger::InitFileLogger("logs/logger.txt");
+    logger::Logger::InitFileLogger("logs/logger.txt");
 
     std::atomic<int> count(0);
     std::vector<std::thread> threads;
