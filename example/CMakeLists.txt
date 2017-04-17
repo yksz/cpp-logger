@@ -1,5 +1,6 @@
 set(examples
     logger_example
+    loggerconf_example
 )
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
