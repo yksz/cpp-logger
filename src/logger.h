@@ -40,9 +40,17 @@ public:
 
     static void InitConsoleLogger(FILE* output = stdout);
     static void InitFileLogger(const char* filename);
-    LogLevel Level();
-    void SetLevel(LogLevel level);
-    bool IsEnabled(LogLevel level);
+
+    static LogLevel Level() {
+        return Logger::Instance().level();
+    }
+    static void SetLevel(LogLevel level) {
+        Logger::Instance().setLevel(level);
+    }
+    static bool IsEnabled(LogLevel level) {
+        return Logger::Instance().isEnabled(level);
+    }
+
     std::shared_ptr<LogThread> Thread();
     void Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...);
 
@@ -54,6 +62,10 @@ private:
     ~Logger();
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
+
+    LogLevel level();
+    void setLevel(LogLevel level);
+    bool isEnabled(LogLevel level);
 };
 
 } // namespace logger

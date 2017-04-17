@@ -35,19 +35,7 @@ Logger::Logger() : m_level(LogLevel_INFO) {
 
 Logger::~Logger() {}
 
-inline LogLevel Logger::Level() {
-    return m_level;
-}
-
-inline void Logger::SetLevel(LogLevel level) {
-    m_level = level;
-}
-
-inline bool Logger::IsEnabled(LogLevel level) {
-    return m_level <= level;
-}
-
-inline std::shared_ptr<LogThread> Logger::Thread() {
+std::shared_ptr<LogThread> Logger::Thread() {
     return m_thread;
 }
 
@@ -91,7 +79,7 @@ static int gettimeofday(struct timeval* tv, void* tz) {
 static uint64_t getCurrentThreadID();
 
 void Logger::Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...) {
-    if (!IsEnabled(level)) {
+    if (!isEnabled(level)) {
         return;
     }
 
@@ -123,6 +111,18 @@ static uint64_t getCurrentThreadID() {
 #else
     return (uint64_t) pthread_self();
 #endif // defined(_WIN32) || defined(_WIN64)
+}
+
+LogLevel Logger::level() {
+    return m_level;
+}
+
+void Logger::setLevel(LogLevel level) {
+    m_level = level;
+}
+
+bool Logger::isEnabled(LogLevel level) {
+    return m_level <= level;
 }
 
 } // namespace logger
