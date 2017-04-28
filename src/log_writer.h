@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include "log_message.h"
 
@@ -20,14 +21,19 @@ struct StderrLogWriter final : public LogWriter {
 
 class FileLogWriter final : public LogWriter {
 public:
-    FileLogWriter(const char* filename);
+    FileLogWriter(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles);
     ~FileLogWriter();
     bool Init();
     void Print(char level, const char* timestamp, const LogMessage& msg);
 
 private:
     std::string m_filename;
+    int64_t m_maxFileSize;
+    uint8_t m_maxBackupFiles;
     FILE* m_output;
+    int64_t m_currentFileSize;
+
+    bool rotateLogFiles();
 };
 
 } // namespace logger

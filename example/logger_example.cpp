@@ -6,7 +6,7 @@ int main(void) {
 
     Logger::SetLevel(LogLevel_INFO);
     Logger::InitConsoleLogger(stderr);
-    Logger::InitFileLogger("log.txt");
+    Logger::InitFileLogger("log.txt", 0, 10);
     std::thread th([] {
         LOG_ERROR("%d", 0);
     });

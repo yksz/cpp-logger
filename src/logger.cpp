@@ -22,9 +22,9 @@ void Logger::InitConsoleLogger(FILE* output) {
     }
 }
 
-void Logger::InitFileLogger(const char* filename) {
+void Logger::InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles) {
     auto thread = Logger::Instance().Thread();
-    auto fileLogWriter = std::unique_ptr<FileLogWriter>(new FileLogWriter(filename));
+    auto fileLogWriter = std::unique_ptr<FileLogWriter>(new FileLogWriter(filename, maxFileSize, maxBackupFiles));
     fileLogWriter->Init();
     thread->AddWriter(std::move(fileLogWriter));
 }

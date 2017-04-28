@@ -39,7 +39,7 @@ public:
     }
 
     static void InitConsoleLogger(FILE* output = stdout);
-    static void InitFileLogger(const char* filename);
+    static void InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles);
 
     static LogLevel Level() {
         return Logger::Instance().level();
