@@ -13,20 +13,24 @@
 
 namespace logger {
 
-void Logger::InitConsoleLogger(FILE* output) {
+bool Logger::InitConsoleLogger(FILE* output) {
     auto thread = Logger::Instance().Thread();
     if (output == stderr) {
         thread->AddWriter(std::unique_ptr<StderrLogWriter>(new StderrLogWriter()));
     } else {
         thread->AddWriter(std::unique_ptr<StdoutLogWriter>(new StdoutLogWriter()));
     }
+    return true;
 }
 
-void Logger::InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles) {
+bool Logger::InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles) {
     auto thread = Logger::Instance().Thread();
     auto fileLogWriter = std::unique_ptr<FileLogWriter>(new FileLogWriter(filename, maxFileSize, maxBackupFiles));
-    fileLogWriter->Init();
+    if (!fileLogWriter->Init()) {
+        return false;
+    }
     thread->AddWriter(std::move(fileLogWriter));
+    return true;
 }
 
 Logger::Logger() : m_level(LogLevel_INFO) {

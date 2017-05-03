@@ -38,8 +38,8 @@ public:
         return s_instance;
     }
 
-    static void InitConsoleLogger(FILE* output = stdout);
-    static void InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles);
+    static bool InitConsoleLogger(FILE* output = stdout);
+    static bool InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles);
 
     static LogLevel Level() {
         return Logger::Instance().level();

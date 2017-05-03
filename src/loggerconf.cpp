@@ -1,5 +1,6 @@
 #include "loggerconf.h"
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include "logger.h"
@@ -10,11 +11,22 @@ namespace logger {
 static const int kConsoleLogger = 1 << 0;
 static const int kFileLogger = 1 << 1;
 
-static int s_logger;
+namespace {
+
+struct config {
+    int loggerType;
+    FILE* output;
+    std::string filename;
+    int64_t maxFileSize;
+    uint8_t maxBackupFiles;
+};
+
+} // namespace
 
 static void removeComments(std::string& s);
 static void trim(std::string& s);
-static void parseLine(std::string& line);
+static void parseLine(std::string& line, config* conf);
+static bool hasFlag(int flags, int flag);
 
 bool Configure(const char* filename) {
     if (filename == nullptr) {
@@ -27,6 +39,7 @@ bool Configure(const char* filename) {
         fprintf(stderr, "ERROR: loggerconf: Failed to open file: `%s`\n", filename);
         return false;
     }
+    config conf;
     std::string line;
     while (std::getline(stream, line)) {
         removeComments(line);
@@ -34,9 +47,22 @@ bool Configure(const char* filename) {
         if (line.empty()) {
             continue;
         }
-        parseLine(line);
+        parseLine(line, &conf);
     }
-    s_logger = 0;
+
+    if (hasFlag(conf.loggerType, kConsoleLogger)) {
+        if (!Logger::InitConsoleLogger(conf.output)) {
+            return false;
+        }
+    }
+    if (hasFlag(conf.loggerType, kFileLogger)) {
+        if (!Logger::InitFileLogger(conf.filename.c_str(), conf.maxFileSize, conf.maxBackupFiles)) {
+            return false;
+        }
+    }
+    if (conf.loggerType == 0) {
+        return false;
+    }
     return true;
 }
 
@@ -66,9 +92,8 @@ static void trim(std::string& s) {
 }
 
 static LogLevel parseLevel(const std::string& s);
-static bool hasFlag(int flags, int flag);
 
-static void parseLine(std::string& line) {
+static void parseLine(std::string& line, config* conf) {
     auto pos = line.find("=");
     std::string key = line.substr(0, pos);
     std::string val = line.substr(pos + 1);
@@ -78,26 +103,31 @@ static void parseLine(std::string& line) {
         Logger::SetLevel(level);
     } else if (key == "logger") {
         if (val == "console") {
-            s_logger |= kConsoleLogger;
+            conf->loggerType |= kConsoleLogger;
         } else if (val == "file") {
-            s_logger |= kFileLogger;
+            conf->loggerType |= kFileLogger;
         } else {
             fprintf(stderr, "ERROR: loggerconf: Invalid logger: `%s`\n", val.c_str());
         }
     } else if (key == "logger.console.output") {
-        if (hasFlag(s_logger, kConsoleLogger)) {
-            if (val == "stdout") {
-                Logger::InitConsoleLogger(stdout);
-            } else if (val == "stderr") {
-                Logger::InitConsoleLogger(stderr);
-            } else {
-                fprintf(stderr, "ERROR: loggerconf: Invalid logger.console.output: `%s`\n", val.c_str());
-            }
+        if (val == "stdout") {
+            conf->output = stdout;
+        } else if (val == "stderr") {
+            conf->output = stderr;
+        } else {
+            fprintf(stderr, "ERROR: loggerconf: Invalid logger.console.output: `%s`\n", val.c_str());
         }
     } else if (key == "logger.file.filename") {
-        if (hasFlag(s_logger, kFileLogger)) {
-            Logger::InitFileLogger(val.c_str());
+        conf->filename = val;
+    } else if (key == "logger.file.maxFileSize") {
+        conf->maxFileSize = atol(val.c_str());
+    } else if (key == "logger.file.maxBackupFiles") {
+        int nfiles = atoi(val.c_str());
+        if (nfiles < 0) {
+            fprintf(stderr, "ERROR: loggerconf: Invalid logger.file.maxBackupFiles: `%s`\n", val.c_str());
+            nfiles = 0;
         }
+        conf->maxBackupFiles = (uint8_t) nfiles;
     }
 }
 
