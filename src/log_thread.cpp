@@ -38,7 +38,6 @@ void LogThread::run() {
             break;
         }
         write(msg);
-        free(msg.content);
     }
 }
 

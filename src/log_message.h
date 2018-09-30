@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #if defined(_WIN32) || defined(_WIN64)
  #include <winsock2.h>
 #else
@@ -17,7 +18,7 @@ struct LogMessage {
     uint64_t threadID;
     const char* file;
     uint32_t line;
-    char* content;
+    std::unique_ptr<char> content;
     bool exited;
 };
 

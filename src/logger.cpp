@@ -97,7 +97,7 @@ void Logger::Log(LogLevel level, const char* file, uint32_t line, const char* fm
         msg.threadID = getCurrentThreadID();
         msg.file = file;
         msg.line = line;
-        msg.content = buf;
+        msg.content = std::unique_ptr<char>(buf);
         m_thread->Send(std::move(msg));
     } else {
         fprintf(stderr, "ERROR: logger: vasprintf");

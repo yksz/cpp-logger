@@ -8,14 +8,14 @@ void StdoutLogWriter::Print(char level, const char* timestamp, const LogMessage&
     // call printf 3 times to avoid a runtime error on Windows
     printf("%c %s %ld ", level, timestamp, msg.threadID);
     printf("%s:%d: ", msg.file, msg.line);
-    printf("%s\n", msg.content);
+    printf("%s\n", msg.content.get());
 }
 
 void StderrLogWriter::Print(char level, const char* timestamp, const LogMessage& msg) {
     // call fprintf 3 times to avoid a runtime error on Windows
     fprintf(stderr, "%c %s %ld ", level, timestamp, msg.threadID);
     fprintf(stderr, "%s:%d: ", msg.file, msg.line);
-    fprintf(stderr, "%s\n", msg.content);
+    fprintf(stderr, "%s\n", msg.content.get());
 }
 
 static const int64_t kDefaultMaxFileSize = 1048576L; // 1 MB
@@ -63,7 +63,7 @@ void FileLogWriter::Print(char level, const char* timestamp, const LogMessage& m
         if ((size = fprintf(m_output, "%s:%d: ", msg.file, msg.line)) > 0) {
             m_currentFileSize += size;
         }
-        if ((size = fprintf(m_output, "%s\n", msg.content)) > 0) {
+        if ((size = fprintf(m_output, "%s\n", msg.content.get())) > 0) {
             m_currentFileSize += size;
         }
     }
