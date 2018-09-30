@@ -1,4 +1,5 @@
 #include "log_thread.h"
+#include <cassert>
 #include <cstdint>
 #include <ctime>
 #include <iomanip>
@@ -7,8 +8,10 @@
 
 namespace logger {
 
+const size_t kQueueCapacity = 1000;
+
 LogThread::LogThread()
-        : m_queue(SIZE_MAX), m_thread(&LogThread::run, this) {}
+        : m_queue(kQueueCapacity), m_thread(&LogThread::run, this) {}
 
 LogThread::~LogThread() {
     LogMessage exit = {};
@@ -40,7 +43,7 @@ void LogThread::run() {
 }
 
 static char toCharacter(LogLevel level);
-static void toString(const struct timeval& time, char* str, size_t len);
+static void toString(const struct timeval& time, char* str, size_t size);
 
 void LogThread::write(const LogMessage& msg) {
     char level = toCharacter(msg.level);
@@ -70,15 +73,15 @@ static struct tm* localtime_r(const time_t* timep, struct tm* result) {
 }
 #endif // defined(_WIN32) || defined(_WIN64)
 
-static void toString(const struct timeval& time, char* str, size_t len) {
+static void toString(const struct timeval& time, char* str, size_t size) {
+    assert(size >= 25);
+
     time_t sec = time.tv_sec;
     struct tm calendar;
     localtime_r(&sec, &calendar);
-    strftime(str, len, "%y-%m-%d %H:%M:%S", &calendar);
+    strftime(str, size, "%y-%m-%d %H:%M:%S", &calendar);
     const int offset = 17;
-    if (len > offset) {
-        snprintf(&str[offset], len - offset, ".%06ld", (long) time.tv_usec);
-    }
+    snprintf(&str[offset], size - offset, ".%06ld", (long) time.tv_usec);
 }
 
 } // namespace logger
