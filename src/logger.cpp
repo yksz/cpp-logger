@@ -13,34 +13,25 @@
 
 namespace logger {
 
-bool Logger::InitConsoleLogger(FILE* output) {
-    auto thread = Logger::Instance().Thread();
+LogLevel s_level = LogLevel_INFO;
+std::shared_ptr<LogThread> s_thread = std::make_shared<LogThread>();
+
+bool InitConsoleLogger(FILE* output) {
     if (output == stderr) {
-        thread->AddWriter(std::unique_ptr<StderrLogWriter>(new StderrLogWriter()));
+        s_thread->AddWriter(std::unique_ptr<StderrLogWriter>(new StderrLogWriter()));
     } else {
-        thread->AddWriter(std::unique_ptr<StdoutLogWriter>(new StdoutLogWriter()));
+        s_thread->AddWriter(std::unique_ptr<StdoutLogWriter>(new StdoutLogWriter()));
     }
     return true;
 }
 
-bool Logger::InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles) {
-    auto thread = Logger::Instance().Thread();
-    auto fileLogWriter = std::unique_ptr<FileLogWriter>(new FileLogWriter(filename, maxFileSize, maxBackupFiles));
-    if (!fileLogWriter->Init()) {
+bool InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles) {
+    auto writer = std::unique_ptr<FileLogWriter>(new FileLogWriter(filename, maxFileSize, maxBackupFiles));
+    if (!writer->Init()) {
         return false;
     }
-    thread->AddWriter(std::move(fileLogWriter));
+    s_thread->AddWriter(std::move(writer));
     return true;
-}
-
-Logger::Logger() : m_level(LogLevel_INFO) {
-    m_thread = std::make_shared<LogThread>();
-}
-
-Logger::~Logger() {}
-
-std::shared_ptr<LogThread> Logger::Thread() {
-    return m_thread;
 }
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -82,8 +73,8 @@ static int gettimeofday(struct timeval* tv, void* tz) {
 
 static uint64_t getCurrentThreadID();
 
-void Logger::Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...) {
-    if (!isEnabled(level)) {
+void Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...) {
+    if (!IsEnabled(level)) {
         return;
     }
 
@@ -98,7 +89,7 @@ void Logger::Log(LogLevel level, const char* file, uint32_t line, const char* fm
         msg.file = file;
         msg.line = line;
         msg.content = std::unique_ptr<char>(buf);
-        m_thread->Send(std::move(msg));
+        s_thread->Send(std::move(msg));
     } else {
         fprintf(stderr, "ERROR: logger: vasprintf");
     }
@@ -117,16 +108,16 @@ static uint64_t getCurrentThreadID() {
 #endif // defined(_WIN32) || defined(_WIN64)
 }
 
-LogLevel Logger::level() {
-    return m_level;
+void SetLevel(LogLevel level) {
+    s_level = level;
 }
 
-void Logger::setLevel(LogLevel level) {
-    m_level = level;
+LogLevel GetLevel() {
+    return s_level;
 }
 
-bool Logger::isEnabled(LogLevel level) {
-    return m_level <= level;
+bool IsEnabled(LogLevel level) {
+    return s_level <= level;
 }
 
 } // namespace logger

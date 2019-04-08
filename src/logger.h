@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <memory>
 
 #if defined(_WIN32) || defined(_WIN64)
  #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
@@ -11,12 +10,12 @@
  #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif // defined(_WIN32) || defined(_WIN64)
 
-#define LOG_TRACE(fmt, ...) logger::Logger::Instance().Log(logger::LogLevel_TRACE, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) logger::Logger::Instance().Log(logger::LogLevel_DEBUG, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...)  logger::Logger::Instance().Log(logger::LogLevel_INFO , __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_WARN(fmt, ...)  logger::Logger::Instance().Log(logger::LogLevel_WARN , __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) logger::Logger::Instance().Log(logger::LogLevel_ERROR, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
-#define LOG_FATAL(fmt, ...) logger::Logger::Instance().Log(logger::LogLevel_FATAL, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_TRACE(fmt, ...) logger::Log(logger::LogLevel_TRACE, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) logger::Log(logger::LogLevel_DEBUG, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...)  logger::Log(logger::LogLevel_INFO , __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...)  logger::Log(logger::LogLevel_WARN , __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) logger::Log(logger::LogLevel_ERROR, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_FATAL(fmt, ...) logger::Log(logger::LogLevel_FATAL, __FILENAME__, __LINE__, fmt, ##__VA_ARGS__)
 
 namespace logger {
 
@@ -29,43 +28,11 @@ enum LogLevel : uint8_t {
     LogLevel_FATAL,
 };
 
-class LogThread;
-
-class Logger final {
-public:
-    static Logger& Instance() {
-        static Logger s_instance;
-        return s_instance;
-    }
-
-    static bool InitConsoleLogger(FILE* output = stdout);
-    static bool InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles);
-
-    static LogLevel Level() {
-        return Logger::Instance().level();
-    }
-    static void SetLevel(LogLevel level) {
-        Logger::Instance().setLevel(level);
-    }
-    static bool IsEnabled(LogLevel level) {
-        return Logger::Instance().isEnabled(level);
-    }
-
-    std::shared_ptr<LogThread> Thread();
-    void Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...);
-
-private:
-    LogLevel m_level;
-    std::shared_ptr<LogThread> m_thread;
-
-    Logger();
-    ~Logger();
-    Logger(const Logger&) = delete;
-    Logger& operator=(const Logger&) = delete;
-
-    LogLevel level();
-    void setLevel(LogLevel level);
-    bool isEnabled(LogLevel level);
-};
+bool InitConsoleLogger(FILE* output = stdout);
+bool InitFileLogger(const char* filename, int64_t maxFileSize, uint8_t maxBackupFiles);
+void SetLevel(LogLevel level);
+LogLevel GetLevel();
+bool IsEnabled(LogLevel level);
+void Log(LogLevel level, const char* file, uint32_t line, const char* fmt, ...);
 
 } // namespace logger

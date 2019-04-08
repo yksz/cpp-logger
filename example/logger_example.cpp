@@ -2,11 +2,9 @@
 #include "logger.h"
 
 int main(void) {
-    using namespace logger;
-
-    Logger::SetLevel(LogLevel_INFO);
-    Logger::InitConsoleLogger(stderr);
-    Logger::InitFileLogger("log.txt", 0, 10);
+    logger::SetLevel(logger::LogLevel_INFO);
+    logger::InitConsoleLogger(stderr);
+    logger::InitFileLogger("log.txt", 0, 10);
     std::thread th([] {
         LOG_ERROR("%d", 0);
     });

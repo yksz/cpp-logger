@@ -51,12 +51,12 @@ bool Configure(const char* filename) {
     }
 
     if (hasFlag(conf.loggerType, kConsoleLogger)) {
-        if (!Logger::InitConsoleLogger(conf.output)) {
+        if (!InitConsoleLogger(conf.output)) {
             return false;
         }
     }
     if (hasFlag(conf.loggerType, kFileLogger)) {
-        if (!Logger::InitFileLogger(conf.filename.c_str(), conf.maxFileSize, conf.maxBackupFiles)) {
+        if (!InitFileLogger(conf.filename.c_str(), conf.maxFileSize, conf.maxBackupFiles)) {
             return false;
         }
     }
@@ -100,7 +100,7 @@ static void parseLine(std::string& line, config* conf) {
 
     if (key == "level") {
         LogLevel level = parseLevel(val);
-        Logger::SetLevel(level);
+        SetLevel(level);
     } else if (key == "logger") {
         if (val == "console") {
             conf->loggerType |= kConsoleLogger;
@@ -146,7 +146,7 @@ static LogLevel parseLevel(const std::string& s) {
         return LogLevel_FATAL;
     } else {
         fprintf(stderr, "ERROR: loggerconf: Invalid level: `%s`\n", s.c_str());
-        return Logger::Level();
+        return GetLevel();
     }
 }
 
